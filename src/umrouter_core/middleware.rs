@@ -1,9 +1,5 @@
-mod descriptor;
 mod registry;
-mod scope;
-mod scope_store;
+mod types;
 
-pub use descriptor::*;
 pub use registry::*;
-pub use scope::*;
-pub use scope_store::*;
+pub use types::*;

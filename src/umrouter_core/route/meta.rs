@@ -1,5 +1,5 @@
 use crate::umrouter_core::types::{
-    LifecycleEvent, MiddlewareId, PresentationMode, RouteId, RuntimeKind, StackId,
+    LifecycleEvent, PresentationMode, RouteId, RuntimeKind, StackId,
 };
 
 /// 参数 schema 的配置占位结构。
@@ -17,17 +17,6 @@ pub struct ParamSchemaSpec {
 
     /// 是否区分 path/query/body 的子 schema。
     pub has_sub_schemas: bool,
-}
-
-/// 路由级中间件声明（静态绑定）。
-///
-/// 注意：
-/// - 这是"写死在路由配置里的"，
-/// - 不包括通过 MiddlewareScope 动态注入的部分。
-#[derive(Debug, Clone)]
-pub struct RouteMiddlewareSpec {
-    pub pre_rw: Vec<MiddlewareId>,
-    pub post_ro: Vec<MiddlewareId>,
 }
 
 /// Hook 声明。
@@ -69,11 +58,22 @@ pub enum RouteKind {
 /// 单条业务路由的元信息。
 ///
 /// 描述"这条路是什么"、"由谁渲染"、"默认挂在哪个栈"、
-/// 以及与参数、动画、中间件等相关的配置。
+/// 以及与参数、动画等相关的配置。
+///
+/// 注意：中间件不再在路由级别静态绑定，
+/// 而是由各中间件的 matcher 动态决定是否生效。
 #[derive(Debug, Clone)]
 pub struct RouteMeta {
     /// 唯一路由 ID，用于在 RouteStore / RouterState / StackFrame 中引用。
     pub id: RouteId,
+
+    /// 路由的路径模式，用于 URL 匹配。
+    ///
+    /// 例如：
+    /// - "/home"
+    /// - "/orders/:orderId/detail"
+    /// - "/auth/profile"
+    pub path: String,
 
     /// 人类可读的路由名，例如：
     /// - "auth.profile"
@@ -92,13 +92,14 @@ pub struct RouteMeta {
     /// 参数校验相关的 schema 配置（path/query/body）。
     pub param_schema: ParamSchemaSpec,
 
-    /// 路由级中间件/Hook 声明（不含 scope 动态注入的）。
-    pub middleware_spec: RouteMiddlewareSpec,
+    /// Hook 声明。
     pub hook_spec: HookSpec,
 
     /// 动画与展示偏好（push / modal / 手势返回等）。
     pub transition_spec: TransitionSpec,
 
     /// 业务标签（例如 "auth-required" / "public" / "admin-only"）。
+    ///
+    /// 中间件可以通过 matcher 根据标签来决定是否生效。
     pub tags: Vec<String>,
 }

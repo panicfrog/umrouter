@@ -41,17 +41,6 @@ pub struct CanonicalParams {
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct MiddlewareId(pub String);
 
-/// 中间件作用域的逻辑 ID。
-///
-/// 用来描述一组 path pattern 对应的一组中间件配置。
-///
-/// 例如：
-/// - "scope_auth_required"
-/// - "scope_guest_only"
-/// - "scope_admin_area"
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct MiddlewareScopeId(pub String);
-
 /// 页面生命周期事件类型。
 ///
 /// 用于声明路由需要监听哪些生命周期事件。
